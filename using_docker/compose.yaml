@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    volumes:
+      - ./data_enrichment.py:/app/data_enrichment.py
+      - ./small_file_aa.json:/app/small_file_aa.json
+      - ./updated_data_new.csv:/app/updated_data_new.csv
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: dwh
+    stdin_open: true  # Keep STDIN open even if not attached
+    tty: true  # Allocate a pseudo-TTY
+
+  db:
+    container_name: postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5051:80"  # Use a different port for pgAdmin
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
